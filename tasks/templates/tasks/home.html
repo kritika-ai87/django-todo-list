@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do List</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'tasks/style.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>My To-Do List</h1>
+        <p>Organize your day, one task at a time.</p>
+    </header>
+
+    <div class="top-section">
+        <h2>My Tasks</h2>
+        <a href="{% url 'add_task' %}" class="add-btn">+ Add New Task</a>
+    </div>
+
+    <div class="task-list">
+
+        {% for task in tasks %}
+
+        <div class="task-card {% if task.is_completed %}completed{% endif %}">
+
+            <div class="task-info">
+
+                <h3>{{ task.title }}</h3>
+
+                <p>{{ task.description|default:"No description provided." }}</p>
+
+                <small>Created: {{ task.created_at|date:"d M Y, h:i A" }}</small>
+
+                {% if task.is_completed %}
+                    <span class="status done">Completed</span>
+                {% else %}
+                    <span class="status pending">Pending</span>
+                {% endif %}
+
+            </div>
+
+            <div class="actions">
+
+                <a href="{% url 'edit_task' task.id %}" class="edit-btn">
+                    Edit
+                </a>
+
+                <form method="POST" action="{% url 'toggle_task' task.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="complete-btn">
+                        {% if task.is_completed %}
+                            Mark Pending
+                        {% else %}
+                            Complete
+                        {% endif %}
+                    </button>
+                </form>
+
+                <form method="POST" action="{% url 'delete_task' task.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-btn"
+                        onclick="return confirm('Are you sure you want to delete this task?')">
+                        Delete
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="empty-state">
+            <h2>No tasks yet!</h2>
+            <p>Start by adding your first task.</p>
+            <a href="{% url 'add_task' %}" class="add-btn">Add Your First Task</a>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <footer>
+        <p>My To-Do List | Stay Organized, Stay Productive.</p>
+    </footer>
+
+</div>
+
+</body>
+</html>
